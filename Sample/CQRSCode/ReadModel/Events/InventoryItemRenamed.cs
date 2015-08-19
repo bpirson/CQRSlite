@@ -3,7 +3,7 @@ using CQRSlite.Events;
 
 namespace CQRSCode.ReadModel.Events
 {
-    public class InventoryItemRenamed : IEvent
+    public class InventoryItemRenamed : EventBase
     {
         public readonly string NewName;
  
@@ -12,9 +12,5 @@ namespace CQRSCode.ReadModel.Events
             Id = id;
             NewName = newName;
         }
-
-        public Guid Id { get; set; }
-        public int Version { get; set; }
-        public DateTimeOffset TimeStamp { get; set; }
     }
 }

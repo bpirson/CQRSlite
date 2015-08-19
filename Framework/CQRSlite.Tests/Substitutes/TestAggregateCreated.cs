@@ -1,12 +1,8 @@
-﻿using System;
-using CQRSlite.Events;
+﻿using CQRSlite.Events;
 
 namespace CQRSlite.Tests.Substitutes
 {
-    public class TestAggregateCreated : IEvent
+    public class TestAggregateCreated : EventBase
     {
-        public Guid Id { get; set; }
-        public int Version { get; set; }
-        public DateTimeOffset TimeStamp { get; set; }
     }
 }

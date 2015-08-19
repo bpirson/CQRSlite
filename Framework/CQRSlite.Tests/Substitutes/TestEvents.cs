@@ -3,17 +3,11 @@ using CQRSlite.Events;
 
 namespace CQRSlite.Tests.Substitutes
 {
-    public class TestAggregateDidSomething : IEvent
+    public class TestAggregateDidSomething : EventBase
     {
-        public Guid Id { get; set; }
-        public int Version { get; set; }
-        public DateTimeOffset TimeStamp { get; set; }
     }
-    public class TestAggregateDidSomeethingElse : IEvent
+    public class TestAggregateDidSomeethingElse : EventBase
     {
-        public Guid Id { get; set; }
-        public int Version { get; set; }
-        public DateTimeOffset TimeStamp { get; set; }
     }
 
     public class TestAggregateDidSomethingHandler : IEventHandler<TestAggregateDidSomething>
