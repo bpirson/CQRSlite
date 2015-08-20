@@ -1,6 +1,6 @@
-#CQRSlite 
+#DHS.CQRSlite
 ## The framework
-CQRSlite is a small CQRS and Eventsourcing Framework. It is written in C# and targets .NET 4.5.2 CQRSlite originated as a CQRS sample project Greg Young and I did in the autumn of 2010.
+DHS.CQRSlite is a small CQRS and Eventsourcing Framework forked from CQRSlite. It is written in C# and targets .NET 4.5 CQRSlite originated as a CQRS sample project Greg Young.
 This code is located at http://github.com/gregoryyoung/m-r
 
 CQRSlite has been made with pluggability in mind. So every standard implementation should be interchangeable with a custom one if needed.
@@ -8,7 +8,7 @@ CQRSlite has been made with pluggability in mind. So every standard implementati
 ##Getting started
 A sample project is located with the code, this shows a common usage scenario of the framework. There are some features of CQRSlite, such as snapshotting that the sample does not show. These features are only documented through the tests.
 
-The project should compile without any setup in .NET 4.5.2 or Mono 3.10.0. 
+The project should compile without any setup in .NET 4.5 or Mono 3.10.0. 
 
 ##Features
 * Command sending and event publishing
@@ -19,8 +19,13 @@ The project should compile without any setup in .NET 4.5.2 or Mono 3.10.0.
 * Snapshotting
 * Caching with concurrency checks and updating to latest version
 
+## Features added in DHS.CQRSlite
+* Event versioning
+* downgraded to .Net 4.5
+* compatible with Unity
+
 ##Installation
-To install CqrsLite, it you could either download the files and copy whats needed into your project, you can clone this project and reference it, or you can download releases from nuget. You will have to implement your own eventstore, an adapter to use an existing eventstore should be trivial.
+To install DHS.CqrsLite, it you could either download the files and copy whats needed into your project, you can clone this project and reference it, or you can download releases from nuget. You will have to implement your own eventstore, an adapter to use an existing eventstore should be trivial.
 
 ##License 
 Copyright 2014 Gaute Magnussen
