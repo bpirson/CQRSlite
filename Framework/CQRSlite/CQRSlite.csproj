@@ -48,11 +48,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Release</OutputPath>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -99,6 +100,7 @@
     <Compile Include="Domain\AggregateRoot.cs" />
     <Compile Include="Commands\ICommand.cs" />
     <Compile Include="Commands\ICommandSender.cs" />
+    <Compile Include="Domain\Exception\EventHandlerFailedException.cs" />
     <Compile Include="Domain\Exception\EventsOutOfOrderException.cs" />
     <Compile Include="Domain\Exception\MissingParameterLessConstructorException.cs" />
     <Compile Include="Domain\Repository.cs" />

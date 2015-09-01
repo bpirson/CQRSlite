@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using CQRSlite.Commands;
+using CQRSlite.Domain.Exception;
 using CQRSlite.Events;
 using CQRSlite.Messages;
 
@@ -37,11 +39,25 @@ namespace CQRSlite.Bus
 
         public void Publish<T>(T @event) where T : IEvent
         {
-            List<Action<IMessage>> handlers; 
-            if (!_routes.TryGetValue(@event.GetType(), out handlers)) return;
-            foreach(var handler in handlers)
-                handler(@event);
-            
+            List<Exception> exceptions = new List<Exception>();
+            List<Action<IMessage>> handlers;
+            var eventType = @event.GetType();
+            if (!_routes.TryGetValue(eventType, out handlers)) return;
+            foreach (var handler in handlers)
+            {
+                try
+                {
+                    handler(@event);
+                }
+                catch (Exception e)
+                {
+                    exceptions.Add( new EventHandlerFailedException(@event, handler,e));
+                }
+            }
+            if (exceptions.Any())
+            {
+                throw new AggregateException(exceptions);
+            }
         }
     }
 }

@@ -54,7 +54,17 @@ namespace CQRSlite.Tests.Domain
             Assert.AreEqual(1, _eventPublisher.Published);
         }
 
-        [Test]
+	    [Test]
+	    public void Should_xxx_events()
+	    {
+            var session = new Session(new TestRepository());
+            var aggregate = new TestAggregate(Guid.NewGuid(),100);
+	        session.Add(aggregate);
+	        Assert.Throws<Exception>(() => session.Commit());
+	        session.Commit();
+	    }
+
+	    [Test]
         public void Should_add_new_aggregate()
         {
             var agg = new TestAggregateNoParameterLessConstructor(1);

@@ -1,3 +1,4 @@
+using System;
 using CQRSlite.Bus;
 using CQRSlite.Tests.Substitutes;
 using NUnit.Framework;
@@ -29,6 +30,27 @@ namespace CQRSlite.Tests.Bus
         public void Should_work_with_no_handlers()
         {
             _bus.Publish(new TestAggregateDidSomething());
+        }
+
+	    [Test]
+	    public void Should_work_when_handler_throws_exception()
+	    {
+            
+            var failingHandler = new TestAggregateDidSomethingHandlerThrowsException();
+            var handler = new TestAggregateDidSomethingHandler();
+            _bus.RegisterHandler<TestAggregateDidSomething>(handler.Handle);
+            _bus.RegisterHandler<TestAggregateDidSomething>(failingHandler.Handle);
+            _bus.RegisterHandler<TestAggregateDidSomething>(failingHandler.Handle);
+            _bus.RegisterHandler<TestAggregateDidSomething>(handler.Handle);
+	        try
+	        {
+	            _bus.Publish(new TestAggregateDidSomething());
+	        }
+	        catch (AggregateException ex)
+	        {
+                Assert.AreEqual(2, ex.InnerExceptions.Count);
+            }
+            Assert.AreEqual(2, handler.TimesRun);
         }
     }
 }

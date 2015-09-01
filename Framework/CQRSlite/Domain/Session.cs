@@ -52,11 +52,17 @@ namespace CQRSlite.Domain
 
         public void Commit()
         {
-            foreach (var descriptor in _trackedAggregates.Values)
+            try
             {
-                _repository.Save(descriptor.Aggregate, descriptor.Version);
+                foreach (var descriptor in _trackedAggregates.Values)
+                {
+                    _repository.Save(descriptor.Aggregate, descriptor.Version);
+                }
             }
-            _trackedAggregates.Clear();
+            finally
+            {
+                _trackedAggregates.Clear();
+            }
         }
 
         private class AggregateDescriptor

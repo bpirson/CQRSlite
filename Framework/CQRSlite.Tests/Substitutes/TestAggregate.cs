@@ -11,6 +11,12 @@ namespace CQRSlite.Tests.Substitutes
             Id = id;
             ApplyChange(new TestAggregateCreated());
         }
+        public TestAggregate(Guid id,int version)
+        {
+            Id = id;
+            Version = version;
+            ApplyChange(new TestAggregateCreated());
+        }
 
         public int DidSomethingCount;
 

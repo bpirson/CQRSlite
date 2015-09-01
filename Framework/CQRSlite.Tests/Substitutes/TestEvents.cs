@@ -22,4 +22,12 @@ namespace CQRSlite.Tests.Substitutes
 
         public int TimesRun { get; private set; }
     }
+
+    public class TestAggregateDidSomethingHandlerThrowsException : IEventHandler<TestAggregateDidSomething>
+    {
+        public void Handle(TestAggregateDidSomething message)
+        {
+            throw new Exception();
+        }
+    }
 }
