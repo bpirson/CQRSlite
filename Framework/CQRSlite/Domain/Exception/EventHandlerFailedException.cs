@@ -13,9 +13,8 @@ namespace CQRSlite.Domain.Exception
         public DateTimeOffset TimeStamp { get; private set; }
         public string EventTypeFullName { get; private set; }
         public int EventTypeVersion { get; private set; }
-        public string MethodName { get; private set; }
 
-        public EventHandlerFailedException(IEvent @event, Action<IMessage> handler, System.Exception innerException) :
+        public EventHandlerFailedException(IEvent @event,System.Exception innerException) :
             base("CQRS Eventhandler failed; See properties and inner exception for more information.", innerException)
         {
             Id = @event.Id;
@@ -23,7 +22,6 @@ namespace CQRSlite.Domain.Exception
             TimeStamp = @event.TimeStamp;
             EventTypeFullName = @event.EventTypeFullName;
             EventTypeVersion = @event.EventTypeVersion;
-            MethodName = handler.Method.Name;
         }
 
         protected EventHandlerFailedException(SerializationInfo info,
@@ -36,7 +34,6 @@ namespace CQRSlite.Domain.Exception
                 TimeStamp = (DateTimeOffset) info.GetValue("TimeStamp", typeof (DateTimeOffset));
                 EventTypeFullName = info.GetString("EventTypeFullName");
                 EventTypeVersion = (int) info.GetValue("EventTypeVersion", typeof (int));
-                MethodName = info.GetString("MethodName");
             }
         }
 
@@ -52,7 +49,6 @@ namespace CQRSlite.Domain.Exception
                 info.AddValue("TimeStamp", TimeStamp);
                 info.AddValue("EventTypeFullName", EventTypeFullName);
                 info.AddValue("EventTypeVersion", EventTypeVersion);
-                info.AddValue("MethodName", MethodName);
             }
         }
     }

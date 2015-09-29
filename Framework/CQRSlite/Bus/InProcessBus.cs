@@ -28,12 +28,28 @@ namespace CQRSlite.Bus
             List<Action<IMessage>> handlers; 
             if (_routes.TryGetValue(command.GetType(), out handlers))
             {
-                if (handlers.Count != 1) throw new InvalidOperationException("Cannot send to more than one handler");
-                handlers[0](command);
+                if (handlers.Count != 1)
+                {
+                    var message = string.Format("Cannot send command {0} to more than one handler", command.GetType());
+                    throw new InvalidOperationException(message);
+                }
+                try
+                {
+                    handlers[0](command);
+                }
+                catch (AggregateException)
+                {
+                    throw;
+                }
+                catch (Exception e)
+                {
+                    throw new CommandHandlerFailedException(command, handlers[0], e);
+                }
             }
             else
             {
-                throw new InvalidOperationException("No handler registered");
+                var message = string.Format("No handler registered for command {0}", command.GetType());
+                throw new InvalidOperationException(message);
             }
         }
 
@@ -47,11 +63,11 @@ namespace CQRSlite.Bus
             {
                 try
                 {
-                    handler(@event);
+                    handler.Invoke(@event);
                 }
                 catch (Exception e)
                 {
-                    exceptions.Add( new EventHandlerFailedException(@event, handler,e));
+                    exceptions.Add( new EventHandlerFailedException(@event, e));
                 }
             }
             if (exceptions.Any())
