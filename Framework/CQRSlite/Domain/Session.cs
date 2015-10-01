@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CQRSlite.Domain.Exception;
 
 namespace CQRSlite.Domain
@@ -50,13 +51,13 @@ namespace CQRSlite.Domain
             return _trackedAggregates.ContainsKey(id);
         }
 
-        public void Commit()
+        public async Task Commit()
         {
             try
             {
                 foreach (var descriptor in _trackedAggregates.Values)
                 {
-                    _repository.Save(descriptor.Aggregate, descriptor.Version);
+                    await _repository.Save(descriptor.Aggregate, descriptor.Version);
                 }
             }
             finally

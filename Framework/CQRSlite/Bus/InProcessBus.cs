@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CQRSlite.Commands;
 using CQRSlite.Domain.Exception;
 using CQRSlite.Events;
@@ -10,22 +11,22 @@ namespace CQRSlite.Bus
 {
     public class InProcessBus : ICommandSender, IEventPublisher, IHandlerRegistrar
     {
-        private readonly Dictionary<Type, List<Action<IMessage>>> _routes = new Dictionary<Type, List<Action<IMessage>>>();
+        private readonly Dictionary<Type, List<Func<IMessage, Task>>> _routes = new Dictionary<Type, List<Func<IMessage,Task>>>();
 
-        public void RegisterHandler<T>(Action<T> handler) where T : IMessage
+        public void RegisterHandler<T>(Func<T, Task> handler) where T : IMessage
         {
-            List<Action<IMessage>> handlers;
+            List<Func<IMessage, Task>> handlers;
             if(!_routes.TryGetValue(typeof(T), out handlers))
             {
-                handlers = new List<Action<IMessage>>();
+                handlers = new List<Func<IMessage, Task>>();
                 _routes.Add(typeof(T), handlers);
             }
             handlers.Add((x => handler((T)x)));
         }
 
-        public void Send<T>(T command) where T : ICommand
+        public async Task Send<T>(T command) where T : ICommand
         {
-            List<Action<IMessage>> handlers; 
+            List<Func<IMessage, Task>> handlers; 
             if (_routes.TryGetValue(command.GetType(), out handlers))
             {
                 if (handlers.Count != 1)
@@ -35,7 +36,7 @@ namespace CQRSlite.Bus
                 }
                 try
                 {
-                    handlers[0](command);
+                    await handlers[0](command);
                 }
                 catch (AggregateException)
                 {
@@ -43,7 +44,7 @@ namespace CQRSlite.Bus
                 }
                 catch (Exception e)
                 {
-                    throw new CommandHandlerFailedException(command, handlers[0], e);
+                    throw new CommandHandlerFailedException(command, e);
                 }
             }
             else
@@ -53,17 +54,17 @@ namespace CQRSlite.Bus
             }
         }
 
-        public void Publish<T>(T @event) where T : IEvent
+        public async Task Publish<T>(T @event) where T : IEvent
         {
             List<Exception> exceptions = new List<Exception>();
-            List<Action<IMessage>> handlers;
+            List<Func<IMessage, Task>> handlers;
             var eventType = @event.GetType();
             if (!_routes.TryGetValue(eventType, out handlers)) return;
             foreach (var handler in handlers)
             {
                 try
                 {
-                    handler.Invoke(@event);
+                    await handler.Invoke(@event);
                 }
                 catch (Exception e)
                 {

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using CQRSlite.Domain.Exception;
 using CQRSlite.Domain.Factories;
 using CQRSlite.Events;
@@ -21,7 +22,7 @@ namespace CQRSlite.Domain
             _publisher = publisher;
         }
 
-        public void Save<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
+        public async Task Save<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
         {
             if (expectedVersion != null && _eventStore.Get(aggregate.Id, expectedVersion.Value).Any())
                 throw new ConcurrencyException(aggregate.Id);
@@ -35,8 +36,9 @@ namespace CQRSlite.Domain
                 i++;
                 @event.Version = aggregate.Version + i;
                 @event.TimeStamp = DateTimeOffset.UtcNow;
-                _eventStore.Save(@event);
-                _publisher.Publish(@event);
+                // Note: Events should be saved and handled in sequence 
+                await _eventStore.Save(@event);
+                await _publisher.Publish(@event);
             }
             aggregate.MarkChangesAsCommitted();
         }

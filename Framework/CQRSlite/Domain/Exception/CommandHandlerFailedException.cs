@@ -11,14 +11,12 @@ namespace CQRSlite.Domain.Exception
 
         public int ExpectedVersion { get; private set; }
         public string CommandTypeFullName { get; private set; }
-        public string MethodName { get; private set; }
 
-        public CommandHandlerFailedException(ICommand command, Action<IMessage> handler, System.Exception innerException) :
+        public CommandHandlerFailedException(ICommand command,  System.Exception innerException) :
             base("CQRS command handler failed; See properties and inner exception for more information.", innerException)
         {
             ExpectedVersion = command.ExpectedVersion;
             CommandTypeFullName = command.GetType().FullName;
-            MethodName = handler.Method.Name;
         }
 
         protected CommandHandlerFailedException(SerializationInfo info,
@@ -28,7 +26,6 @@ namespace CQRSlite.Domain.Exception
             {
                 ExpectedVersion = (int)info.GetValue("ExpectedVersion", typeof(int));
                 CommandTypeFullName = info.GetString("CommandTypeFullName");
-                MethodName = info.GetString("MethodName");
             }
         }
 
@@ -41,7 +38,6 @@ namespace CQRSlite.Domain.Exception
             {
                 info.AddValue("ExpectedVersion", ExpectedVersion);
                 info.AddValue("CommandTypeFullName", CommandTypeFullName);
-                info.AddValue("MethodName", MethodName);
             }
         }
     }

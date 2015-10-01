@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.Caching;
+using System.Threading.Tasks;
 using CQRSlite.Domain;
 using CQRSlite.Events;
 
@@ -17,9 +18,9 @@ namespace CQRSlite.Cache
 
         public CacheRepository(IRepository repository, IEventStore eventStore)
         {
-            if(repository == null)
+            if (repository == null)
                 throw new ArgumentNullException("repository");
-            if(eventStore == null)
+            if (eventStore == null)
                 throw new ArgumentNullException("eventStore");
 
             _repository = repository;
@@ -36,24 +37,20 @@ namespace CQRSlite.Cache
             };
         }
 
-        public void Save<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
+        public async Task Save<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
         {
             var idstring = aggregate.Id.ToString();
             try
             {
-                lock (_locks.GetOrAdd(idstring, _ => new object()))
-                {
-                    if (aggregate.Id != Guid.Empty && !IsTracked(aggregate.Id))
-                        _cache.Add(idstring, aggregate, _policyFactory.Invoke());
-                    _repository.Save(aggregate, expectedVersion);
-                }
+                _locks.GetOrAdd(idstring, _ => new object());
+                if (aggregate.Id != Guid.Empty && !IsTracked(aggregate.Id))
+                    _cache.Add(idstring, aggregate, _policyFactory.Invoke());
+                await _repository.Save(aggregate, expectedVersion);
             }
             catch (Exception)
             {
-                lock (_locks.GetOrAdd(idstring, _ => new object()))
-                {
-                    _cache.Remove(idstring);
-                }
+                _locks.GetOrAdd(idstring, _ => new object());
+                _cache.Remove(idstring);
                 throw;
             }
         }
@@ -88,10 +85,8 @@ namespace CQRSlite.Cache
             }
             catch (Exception)
             {
-                lock (_locks.GetOrAdd(idstring, _ => new object()))
-                {
-                    _cache.Remove(idstring);
-                }
+                _locks.GetOrAdd(idstring, _ => new object());
+                _cache.Remove(idstring);
                 throw;
             }
         }

@@ -1,4 +1,5 @@
-﻿using CQRSCode.WriteModel.Commands;
+﻿using System.Threading.Tasks;
+using CQRSCode.WriteModel.Commands;
 using CQRSCode.WriteModel.Domain;
 using CQRSlite.Commands;
 using CQRSlite.Domain;
@@ -18,39 +19,39 @@ namespace CQRSCode.WriteModel.Handlers
             _session = session;
         }
 
-        public void Handle(CreateInventoryItem message)
+        public async Task Handle(CreateInventoryItem message)
         {
             var item = new InventoryItem(message.Id, message.Name);
             _session.Add(item);
-            _session.Commit();
+            await _session.Commit();
         }
 
-        public void Handle(DeactivateInventoryItem message)
+        public async Task Handle(DeactivateInventoryItem message)
         {
             var item = _session.Get<InventoryItem>(message.Id, message.ExpectedVersion);
             item.Deactivate();
-            _session.Commit();
+            await _session.Commit();
         }
 
-        public void Handle(RemoveItemsFromInventory message)
+        public async Task Handle(RemoveItemsFromInventory message)
         {
             var item = _session.Get<InventoryItem>(message.Id, message.ExpectedVersion);
             item.Remove(message.Count);
-            _session.Commit();
+            await _session.Commit();
         }
 
-        public void Handle(CheckInItemsToInventory message)
+        public async Task Handle(CheckInItemsToInventory message)
         {
             var item = _session.Get<InventoryItem>(message.Id, message.ExpectedVersion);
             item.CheckIn(message.Count);
-            _session.Commit();
+           await _session.Commit();
         }
 
-        public void Handle(RenameInventoryItem message)
+        public async Task Handle(RenameInventoryItem message)
         {
             var item = _session.Get<InventoryItem>(message.Id, message.ExpectedVersion);
             item.ChangeName(message.NewName);
-            _session.Commit();
+            await _session.Commit();
         }
     }
 }
