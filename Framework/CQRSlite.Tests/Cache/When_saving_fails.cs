@@ -22,7 +22,7 @@ namespace CQRSlite.Tests.Cache
             _aggregate.DoSomething();
             try
             {
-                _rep.Save(_aggregate, 100);
+                _rep.SaveAsync(_aggregate, 100);
             }
             catch (Exception){}
         }

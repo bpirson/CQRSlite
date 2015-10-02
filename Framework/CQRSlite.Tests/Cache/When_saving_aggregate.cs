@@ -19,7 +19,7 @@ namespace CQRSlite.Tests.Cache
             _rep = new CacheRepository(_testRep, new TestInMemoryEventStore());
             _aggregate = _testRep.Get<TestAggregate>(Guid.NewGuid());
             _aggregate.DoSomething();
-            _rep.Save(_aggregate,-1);
+            _rep.SaveAsync(_aggregate,-1);
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace CQRSlite.Tests.Cache
         public void Should_not_cache_empty_id()
         {
             var aggregate = new TestAggregate(Guid.Empty);
-            _rep.Save(aggregate);
+            _rep.SaveAsync(aggregate);
             Assert.That(_rep.Get<TestAggregate>(Guid.Empty), Is.Not.EqualTo(aggregate));
         }
     }

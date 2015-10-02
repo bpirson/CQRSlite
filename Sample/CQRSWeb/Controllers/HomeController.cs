@@ -37,7 +37,7 @@ namespace CQRSWeb.Controllers
         [HttpPost]
         public ActionResult Add(string name)
         {
-            _commandSender.Send(new CreateInventoryItem(Guid.NewGuid(), name));
+            _commandSender.SendAsync(new CreateInventoryItem(Guid.NewGuid(), name));
             return RedirectToAction("Index");
         }
 
@@ -50,13 +50,13 @@ namespace CQRSWeb.Controllers
         [HttpPost]
         public ActionResult ChangeName(Guid id, string name, int version)
         {
-            _commandSender.Send(new RenameInventoryItem(id, name, version));
+            _commandSender.SendAsync(new RenameInventoryItem(id, name, version));
             return RedirectToAction("Index");
         }
 
         public ActionResult Deactivate(Guid id, int version)
         {
-            _commandSender.Send(new DeactivateInventoryItem(id, version));
+            _commandSender.SendAsync(new DeactivateInventoryItem(id, version));
             return RedirectToAction("Index");
         }
 
@@ -69,7 +69,7 @@ namespace CQRSWeb.Controllers
         [HttpPost]
         public ActionResult CheckIn(Guid id, int number, int version)
         {
-            _commandSender.Send(new CheckInItemsToInventory(id, number, version));
+            _commandSender.SendAsync(new CheckInItemsToInventory(id, number, version));
             return RedirectToAction("Index");
         }
 
@@ -82,7 +82,7 @@ namespace CQRSWeb.Controllers
         [HttpPost]
         public ActionResult Remove(Guid id, int number, int version)
         {
-            _commandSender.Send(new RemoveItemsFromInventory(id, number, version));
+            _commandSender.SendAsync(new RemoveItemsFromInventory(id, number, version));
             return RedirectToAction("Index");
         }
     }

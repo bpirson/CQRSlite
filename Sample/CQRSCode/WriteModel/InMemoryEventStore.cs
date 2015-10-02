@@ -17,7 +17,7 @@ namespace CQRSCode.WriteModel
             return events != null ? events.Where(x => x.Version > fromVersion) : new List<IEvent>();
         }
 
-        public Task Save(IEvent @event)
+        public Task SaveAsync(IEvent @event)
         {
             List<IEvent> list;
             _inMemoryDB.TryGetValue(@event.Id, out list);

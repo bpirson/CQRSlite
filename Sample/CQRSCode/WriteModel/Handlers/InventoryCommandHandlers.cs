@@ -19,39 +19,39 @@ namespace CQRSCode.WriteModel.Handlers
             _session = session;
         }
 
-        public async Task Handle(CreateInventoryItem message)
+        public async Task HandleAsync(CreateInventoryItem message)
         {
             var item = new InventoryItem(message.Id, message.Name);
             _session.Add(item);
-            await _session.Commit();
+            await _session.CommitAsync();
         }
 
-        public async Task Handle(DeactivateInventoryItem message)
+        public async Task HandleAsync(DeactivateInventoryItem message)
         {
             var item = _session.Get<InventoryItem>(message.Id, message.ExpectedVersion);
             item.Deactivate();
-            await _session.Commit();
+            await _session.CommitAsync();
         }
 
-        public async Task Handle(RemoveItemsFromInventory message)
+        public async Task HandleAsync(RemoveItemsFromInventory message)
         {
             var item = _session.Get<InventoryItem>(message.Id, message.ExpectedVersion);
             item.Remove(message.Count);
-            await _session.Commit();
+            await _session.CommitAsync();
         }
 
-        public async Task Handle(CheckInItemsToInventory message)
+        public async Task HandleAsync(CheckInItemsToInventory message)
         {
             var item = _session.Get<InventoryItem>(message.Id, message.ExpectedVersion);
             item.CheckIn(message.Count);
-           await _session.Commit();
+           await _session.CommitAsync();
         }
 
-        public async Task Handle(RenameInventoryItem message)
+        public async Task HandleAsync(RenameInventoryItem message)
         {
             var item = _session.Get<InventoryItem>(message.Id, message.ExpectedVersion);
             item.ChangeName(message.NewName);
-            await _session.Commit();
+            await _session.CommitAsync();
         }
     }
 }

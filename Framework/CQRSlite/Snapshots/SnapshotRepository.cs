@@ -32,10 +32,10 @@ namespace CQRSlite.Snapshots
             _eventStore = eventStore;
         }
 
-        public async Task Save<T>(T aggregate, int? exectedVersion = null) where T : AggregateRoot
+        public async Task SaveAsync<T>(T aggregate, int? exectedVersion = null) where T : AggregateRoot
         {
             TryMakeSnapshot(aggregate);
-            await _repository.Save(aggregate, exectedVersion);
+            await _repository.SaveAsync(aggregate, exectedVersion);
         }
 
         public T Get<T>(Guid aggregateId) where T : AggregateRoot

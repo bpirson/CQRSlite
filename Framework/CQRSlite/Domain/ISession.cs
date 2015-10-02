@@ -7,6 +7,6 @@ namespace CQRSlite.Domain
     {
         void Add<T>(T aggregate) where T : AggregateRoot;
         T Get<T>(Guid id, int? expectedVersion = null) where T : AggregateRoot;
-        Task Commit();
+        Task CommitAsync();
     }
 }

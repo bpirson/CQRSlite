@@ -27,7 +27,7 @@ namespace CQRSlite.Tests.Domain
         [Test]
         public void Should_throw_aggregate_or_event_missing_id_exception_from_repository()
         {
-            Assert.Throws<AggregateOrEventMissingIdException>(() => _rep.Save(_aggregate, 0));
+            Assert.Throws<AggregateOrEventMissingIdException>(() => _rep.SaveAsync(_aggregate, 0));
         }
     }
 }

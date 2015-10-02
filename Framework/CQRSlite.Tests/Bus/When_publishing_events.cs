@@ -20,16 +20,16 @@ namespace CQRSlite.Tests.Bus
         public void Should_publish_to_all_handlers()
         {
             var handler = new TestAggregateDidSomethingHandler();
-            _bus.RegisterHandler<TestAggregateDidSomething>(handler.Handle);
-            _bus.RegisterHandler<TestAggregateDidSomething>(handler.Handle);
-            _bus.Publish(new TestAggregateDidSomething());
+            _bus.RegisterHandler<TestAggregateDidSomething>(handler.HandleAsync);
+            _bus.RegisterHandler<TestAggregateDidSomething>(handler.HandleAsync);
+            _bus.PublishAsync(new TestAggregateDidSomething());
             Assert.AreEqual(2, handler.TimesRun);
         }
 
         [Test]
         public void Should_work_with_no_handlers()
         {
-            _bus.Publish(new TestAggregateDidSomething());
+            _bus.PublishAsync(new TestAggregateDidSomething());
         }
 
 	    [Test]
@@ -38,13 +38,13 @@ namespace CQRSlite.Tests.Bus
             
             var failingHandler = new TestAggregateDidSomethingHandlerThrowsException();
             var handler = new TestAggregateDidSomethingHandler();
-            _bus.RegisterHandler<TestAggregateDidSomething>(handler.Handle);
-            _bus.RegisterHandler<TestAggregateDidSomething>(failingHandler.Handle);
-            _bus.RegisterHandler<TestAggregateDidSomething>(failingHandler.Handle);
-            _bus.RegisterHandler<TestAggregateDidSomething>(handler.Handle);
+            _bus.RegisterHandler<TestAggregateDidSomething>(handler.HandleAsync);
+            _bus.RegisterHandler<TestAggregateDidSomething>(failingHandler.HandleAsync);
+            _bus.RegisterHandler<TestAggregateDidSomething>(failingHandler.HandleAsync);
+            _bus.RegisterHandler<TestAggregateDidSomething>(handler.HandleAsync);
 	        try
 	        {
-	            _bus.Publish(new TestAggregateDidSomething());
+	            _bus.PublishAsync(new TestAggregateDidSomething());
 	        }
 	        catch (AggregateException ex)
 	        {

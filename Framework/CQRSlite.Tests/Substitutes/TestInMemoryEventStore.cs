@@ -10,7 +10,7 @@ namespace CQRSlite.Tests.Substitutes
     {
         public readonly List<IEvent> Events = new List<IEvent>();
 
-        public Task Save(IEvent @event)
+        public Task SaveAsync(IEvent @event)
         {
             lock(Events)
             {

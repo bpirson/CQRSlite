@@ -13,7 +13,7 @@ namespace CQRSlite.Tests.Substitutes
 
     public class TestAggregateDidSomethingHandler : IEventHandler<TestAggregateDidSomething>
     {
-        public Task Handle(TestAggregateDidSomething message)
+        public Task HandleAsync(TestAggregateDidSomething message)
         {
             lock (message)
             {
@@ -27,7 +27,7 @@ namespace CQRSlite.Tests.Substitutes
 
     public class TestAggregateDidSomethingHandlerThrowsException : IEventHandler<TestAggregateDidSomething>
     {
-        public Task Handle(TestAggregateDidSomething message)
+        public Task HandleAsync(TestAggregateDidSomething message)
         {
             throw new Exception();
         }

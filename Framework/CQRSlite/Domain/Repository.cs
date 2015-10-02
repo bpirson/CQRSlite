@@ -22,7 +22,7 @@ namespace CQRSlite.Domain
             _publisher = publisher;
         }
 
-        public async Task Save<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
+        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
         {
             if (expectedVersion != null && _eventStore.Get(aggregate.Id, expectedVersion.Value).Any())
                 throw new ConcurrencyException(aggregate.Id);
@@ -37,8 +37,8 @@ namespace CQRSlite.Domain
                 @event.Version = aggregate.Version + i;
                 @event.TimeStamp = DateTimeOffset.UtcNow;
                 // Note: Events should be saved and handled in sequence 
-                await _eventStore.Save(@event);
-                await _publisher.Publish(@event);
+                await _eventStore.SaveAsync(@event);
+                await _publisher.PublishAsync(@event);
             }
             aggregate.MarkChangesAsCommitted();
         }

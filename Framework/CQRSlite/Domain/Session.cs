@@ -51,13 +51,13 @@ namespace CQRSlite.Domain
             return _trackedAggregates.ContainsKey(id);
         }
 
-        public async Task Commit()
+        public async Task CommitAsync()
         {
             try
             {
                 foreach (var descriptor in _trackedAggregates.Values)
                 {
-                    await _repository.Save(descriptor.Aggregate, descriptor.Version);
+                    await _repository.SaveAsync(descriptor.Aggregate, descriptor.Version);
                 }
             }
             finally

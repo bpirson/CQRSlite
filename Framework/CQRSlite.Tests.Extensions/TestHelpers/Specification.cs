@@ -41,7 +41,7 @@ namespace CQRSlite.Tests.Extensions.TestHelpers
             Aggregate = Session.Get<TAggregate>(Guid.Empty);
 
             var handler = BuildHandler();
-            handler.Handle(When());
+            handler.HandleAsync(When());
 
             Snapshot = snapshotstorage.Snapshot;
             PublishedEvents = eventpublisher.PublishedEvents;
@@ -74,7 +74,7 @@ namespace CQRSlite.Tests.Extensions.TestHelpers
             PublishedEvents = new List<IEvent>();
         }
 
-        public Task Publish<T>(T @event) where T : IEvent
+        public Task PublishAsync<T>(T @event) where T : IEvent
         {
             PublishedEvents.Add(@event);
             return Task.FromResult(0);
@@ -91,7 +91,7 @@ namespace CQRSlite.Tests.Extensions.TestHelpers
 
         public IList<IEvent> Events { get; set; }
 
-        public Task Save(IEvent @event)
+        public Task SaveAsync(IEvent @event)
         {
             Events.Add(@event);
             return Task.FromResult(0);

@@ -32,7 +32,7 @@ namespace CQRSlite.Tests.Substitutes
                 }.Where(x => x.Version > version);
         }
 
-        public Task Save(IEvent @event)
+        public Task SaveAsync(IEvent @event)
         {
             SavedEvents.Add(@event);
             return Task.FromResult(0);

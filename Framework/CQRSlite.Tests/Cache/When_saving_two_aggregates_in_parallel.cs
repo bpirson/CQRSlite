@@ -31,8 +31,8 @@ namespace CQRSlite.Tests.Cache
             _aggregate1 = new TestAggregate(Guid.NewGuid());
             _aggregate2 = new TestAggregate(Guid.NewGuid());
 
-            _rep1.Save(_aggregate1);
-            _rep1.Save(_aggregate2);
+            _rep1.SaveAsync(_aggregate1);
+            _rep1.SaveAsync(_aggregate2);
 
             var t1 = new Task(() =>
                                   {
@@ -40,7 +40,7 @@ namespace CQRSlite.Tests.Cache
                                       {
                                           var aggregate = _rep1.Get<TestAggregate>(_aggregate1.Id);
                                           aggregate.DoSomething();
-                                          _rep1.Save(aggregate);
+                                          _rep1.SaveAsync(aggregate);
                                       }
                                   });
 
@@ -50,7 +50,7 @@ namespace CQRSlite.Tests.Cache
                                       {
                                           var aggregate = _rep1.Get<TestAggregate>(_aggregate2.Id);
                                           aggregate.DoSomething();
-                                          _rep1.Save(aggregate);
+                                          _rep1.SaveAsync(aggregate);
                                       }
                                   });
             t1.Start();

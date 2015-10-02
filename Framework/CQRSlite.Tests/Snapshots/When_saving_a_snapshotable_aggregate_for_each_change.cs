@@ -28,7 +28,7 @@ namespace CQRSlite.Tests.Snapshots
             {
                 _session.Add(_aggregate);
                 _aggregate.DoSomething();
-                _session.Commit();
+                _session.CommitAsync();
             }
         }
 

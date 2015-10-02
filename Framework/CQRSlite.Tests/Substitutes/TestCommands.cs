@@ -12,7 +12,7 @@ namespace CQRSlite.Tests.Substitutes
 
     public class TestAggregateDoSomethingHandler : ICommandHandler<TestAggregateDoSomething> 
     {
-        public Task Handle(TestAggregateDoSomething message)
+        public Task HandleAsync(TestAggregateDoSomething message)
         {
             TimesRun++;
             return Task.FromResult(0);
@@ -22,7 +22,7 @@ namespace CQRSlite.Tests.Substitutes
     }
 	public class TestAggregateDoSomethingElseHandler : ICommandHandler<TestAggregateDoSomething>
     {
-        public Task Handle(TestAggregateDoSomething message)
+        public Task HandleAsync(TestAggregateDoSomething message)
         {
             return Task.FromResult(0);
         }

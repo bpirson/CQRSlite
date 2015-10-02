@@ -24,7 +24,7 @@ namespace CQRSlite.Bus
             handlers.Add((x => handler((T)x)));
         }
 
-        public async Task Send<T>(T command) where T : ICommand
+        public async Task SendAsync<T>(T command) where T : ICommand
         {
             List<Func<IMessage, Task>> handlers; 
             if (_routes.TryGetValue(command.GetType(), out handlers))
@@ -54,7 +54,7 @@ namespace CQRSlite.Bus
             }
         }
 
-        public async Task Publish<T>(T @event) where T : IEvent
+        public async Task PublishAsync<T>(T @event) where T : IEvent
         {
             List<Exception> exceptions = new List<Exception>();
             List<Func<IMessage, Task>> handlers;

@@ -4,7 +4,7 @@ using CQRSlite.Events;
 namespace CQRSlite.Tests.Substitutes
 {
     public class TestEventPublisher: IEventPublisher {
-        public Task Publish<T>(T @event) where T : IEvent
+        public Task PublishAsync<T>(T @event) where T : IEvent
         {
             Published++;
             return Task.FromResult(0);

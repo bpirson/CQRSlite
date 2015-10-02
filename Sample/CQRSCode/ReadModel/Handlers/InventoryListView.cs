@@ -10,20 +10,20 @@ namespace CQRSCode.ReadModel.Handlers
 										IEventHandler<InventoryItemRenamed>,
 										IEventHandler<InventoryItemDeactivated>
     {
-        public Task Handle(InventoryItemCreated message)
+        public Task HandleAsync(InventoryItemCreated message)
         {
             InMemoryDatabase.List.Add(new InventoryItemListDto(message.Id, message.Name));
             return Task.FromResult(0);
         }
 
-        public Task Handle(InventoryItemRenamed message)
+        public Task HandleAsync(InventoryItemRenamed message)
         {
             var item = InMemoryDatabase.List.Find(x => x.Id == message.Id);
             item.Name = message.NewName;
             return Task.FromResult(0);
         }
 
-        public Task Handle(InventoryItemDeactivated message)
+        public Task HandleAsync(InventoryItemDeactivated message)
         {
             InMemoryDatabase.List.RemoveAll(x => x.Id == message.Id);
             return Task.FromResult(0);

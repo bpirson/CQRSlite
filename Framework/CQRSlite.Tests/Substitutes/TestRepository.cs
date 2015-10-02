@@ -6,7 +6,7 @@ namespace CQRSlite.Tests.Substitutes
 {
     public class TestRepository : IRepository
     {
-        public Task Save<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
+        public Task SaveAsync<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
         {
             Saved = aggregate;
             if (expectedVersion == 100)

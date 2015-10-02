@@ -4,6 +4,6 @@ namespace CQRSlite.Commands
 {
     public interface ICommandSender
     {
-        Task Send<T>(T command) where T : ICommand;
+        Task SendAsync<T>(T command) where T : ICommand;
     }
 }

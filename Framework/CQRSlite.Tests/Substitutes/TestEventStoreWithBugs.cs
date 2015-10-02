@@ -22,7 +22,7 @@ namespace CQRSlite.Tests.Substitutes
                 };
         }
 
-        public Task Save(IEvent eventDescriptor)
+        public Task SaveAsync(IEvent eventDescriptor)
         {
             return Task.FromResult(0);
         }

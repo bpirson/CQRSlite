@@ -32,7 +32,7 @@ namespace CQRSlite.Tests.Domain
         {
             _aggregate.DoSomething();
             _session.Add(_aggregate);
-            _session.Commit();
+            _session.CommitAsync();
             Assert.AreEqual(1, _eventStore.Events.Count);
         }
 
@@ -41,7 +41,7 @@ namespace CQRSlite.Tests.Domain
         {
             _aggregate.DoSomething();
             _session.Add(_aggregate);
-            _session.Commit();
+            _session.CommitAsync();
             Assert.AreEqual(0, _aggregate.GetUncommittedChanges().Count());
         }
         
@@ -50,7 +50,7 @@ namespace CQRSlite.Tests.Domain
         {
             _aggregate.DoSomething();
             _session.Add(_aggregate);
-            _session.Commit();
+            _session.CommitAsync();
             Assert.AreEqual(1, _eventPublisher.Published);
         }
 
@@ -60,8 +60,8 @@ namespace CQRSlite.Tests.Domain
             var session = new Session(new TestRepository());
             var aggregate = new TestAggregate(Guid.NewGuid(),100);
 	        session.Add(aggregate);
-	        Assert.Throws<Exception>(() => session.Commit());
-	        session.Commit();
+	        Assert.Throws<Exception>(() => session.CommitAsync());
+	        session.CommitAsync();
 	    }
 
 	    [Test]
@@ -70,7 +70,7 @@ namespace CQRSlite.Tests.Domain
             var agg = new TestAggregateNoParameterLessConstructor(1);
             agg.DoSomething();
             _session.Add(agg);
-            _session.Commit();
+            _session.CommitAsync();
             Assert.AreEqual(1, _eventStore.Events.Count);
         }
 
@@ -80,7 +80,7 @@ namespace CQRSlite.Tests.Domain
             var agg = new TestAggregateNoParameterLessConstructor(1);
             agg.DoSomething();
             _session.Add(agg);
-            _session.Commit();
+            _session.CommitAsync();
             Assert.That(_eventStore.Events.First().TimeStamp, Is.InRange(DateTimeOffset.UtcNow.AddSeconds(-1), DateTimeOffset.UtcNow.AddSeconds(1)));
         }
 
@@ -91,7 +91,7 @@ namespace CQRSlite.Tests.Domain
             agg.DoSomething();
             agg.DoSomething();
             _session.Add(agg);
-            _session.Commit();
+            _session.CommitAsync();
             Assert.That(_eventStore.Events.First().Version, Is.EqualTo(1));
             Assert.That(_eventStore.Events.Last().Version, Is.EqualTo(2));
 
@@ -104,7 +104,7 @@ namespace CQRSlite.Tests.Domain
             var agg = new TestAggregateNoParameterLessConstructor(1, id);
             agg.DoSomething();
             _session.Add(agg);
-            _session.Commit();
+            _session.CommitAsync();
             Assert.That(_eventStore.Events.First().Id, Is.EqualTo(id));
         }
 
@@ -114,7 +114,7 @@ namespace CQRSlite.Tests.Domain
             var agg = new TestAggregate(Guid.NewGuid());
             _session.Add(agg);
             agg.DoSomething();
-            _session.Commit();
+            _session.CommitAsync();
             _eventStore.Events.Clear();
 
             Assert.Throws<AggregateNotFoundException>(() => _session.Get<TestAggregate>(agg.Id));

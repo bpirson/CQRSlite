@@ -6,7 +6,7 @@ namespace CQRSlite.Events
 {
     public interface IEventStore 
     {
-        Task Save(IEvent @event);
+        Task SaveAsync(IEvent @event);
         IEnumerable<IEvent> Get(Guid aggregateId, int fromVersion);
     }
 }

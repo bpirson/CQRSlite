@@ -37,7 +37,7 @@ namespace CQRSlite.Cache
             };
         }
 
-        public async Task Save<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
+        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
         {
             var idstring = aggregate.Id.ToString();
             try
@@ -45,7 +45,7 @@ namespace CQRSlite.Cache
                 _locks.GetOrAdd(idstring, _ => new object());
                 if (aggregate.Id != Guid.Empty && !IsTracked(aggregate.Id))
                     _cache.Add(idstring, aggregate, _policyFactory.Invoke());
-                await _repository.Save(aggregate, expectedVersion);
+                await _repository.SaveAsync(aggregate, expectedVersion);
             }
             catch (Exception)
             {

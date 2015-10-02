@@ -54,7 +54,7 @@ namespace CQRSlite.Config
             var del = new Func<dynamic,Task>(x => 
                                               {
                                                   dynamic handler = _serviceLocator.GetService(executorType);
-                                                  return handler.Handle(x);
+                                                  return handler.HandleAsync(x);
                                               });
             
             registerExecutorMethod.Invoke(bus, new object[] { del });
