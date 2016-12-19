@@ -38,7 +38,7 @@ namespace CQRSlite.Tests.Extensions.TestHelpers
 		    var repository = new SnapshotRepository(snapshotstorage, snapshotStrategy, new Repository(eventstorage, eventpublisher), eventstorage);
             Session = new Session(repository);
 
-            Aggregate = Session.Get<TAggregate>(Guid.Empty);
+            Aggregate = Session.GetAsync<TAggregate>(Guid.Empty).Result;
 
             var handler = BuildHandler();
             handler.HandleAsync(When());

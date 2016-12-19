@@ -38,13 +38,13 @@ namespace CQRSlite.Snapshots
             await _repository.SaveAsync(aggregate, exectedVersion);
         }
 
-        public T Get<T>(Guid aggregateId) where T : AggregateRoot
+        public async Task<T> GetAsync<T>(Guid aggregateId) where T : AggregateRoot
         {
             var aggregate = AggregateFactory.CreateAggregate<T>();
             var snapshotVersion = TryRestoreAggregateFromSnapshot(aggregateId, aggregate);
             if(snapshotVersion == -1)
             {
-                return _repository.Get<T>(aggregateId);
+                return await _repository.GetAsync<T>(aggregateId);
             }
             var events = _eventStore.Get(aggregateId, snapshotVersion).Where(desc => desc.Version > snapshotVersion);
             aggregate.LoadFromHistory(events);

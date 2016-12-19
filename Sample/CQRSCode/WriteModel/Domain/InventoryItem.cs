@@ -1,6 +1,7 @@
 ﻿using System;
 using CQRSCode.ReadModel.Events;
 using CQRSlite.Domain;
+using CQRSlite.Events;
 
 namespace CQRSCode.WriteModel.Domain
 {
@@ -30,6 +31,10 @@ namespace CQRSCode.WriteModel.Domain
             ApplyChange(new ItemsRemovedFromInventory(Id, count));
         }
 
+        public override IEvent ConstructInitialCreateEvent()
+        {
+            throw new NotImplementedException();
+        }
 
         public void CheckIn(int count)
         {

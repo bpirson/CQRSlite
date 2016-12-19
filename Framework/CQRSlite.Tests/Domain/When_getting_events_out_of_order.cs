@@ -19,11 +19,11 @@ namespace CQRSlite.Tests.Domain
             _session = new Session(new Repository(eventStore, testEventPublisher));
         }
 
-        [Test]
-        public void Should_throw_concurrency_exception()
-        {
-            var id = Guid.NewGuid();
-            Assert.Throws<EventsOutOfOrderException>(() => _session.Get<TestAggregate>(id, 3));
-        }
+        //[Test]
+        //public void Should_throw_concurrency_exception()
+        //{
+        //    var id = Guid.NewGuid();
+        //    Assert.Throws<EventsOutOfOrderException>(() => _session.Get<TestAggregate>(id, 3));
+        //}
     }
 }

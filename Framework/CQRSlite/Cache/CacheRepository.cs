@@ -55,14 +55,14 @@ namespace CQRSlite.Cache
             }
         }
 
-        public T Get<T>(Guid aggregateId) where T : AggregateRoot
+        public async Task<T> GetAsync<T>(Guid aggregateId) where T : AggregateRoot
         {
             var idstring = aggregateId.ToString();
             try
             {
+                T aggregate;
                 lock (_locks.GetOrAdd(idstring, _ => new object()))
                 {
-                    T aggregate;
                     if (IsTracked(aggregateId))
                     {
                         aggregate = (T)_cache.Get(idstring);
@@ -77,11 +77,10 @@ namespace CQRSlite.Cache
                             return aggregate;
                         }
                     }
-
-                    aggregate = _repository.Get<T>(aggregateId);
-                    _cache.Add(aggregateId.ToString(), aggregate, _policyFactory.Invoke());
-                    return aggregate;
                 }
+                aggregate = await _repository.GetAsync<T>(aggregateId);
+                _cache.Add(aggregateId.ToString(), aggregate, _policyFactory.Invoke());
+                return aggregate;
             }
             catch (Exception)
             {

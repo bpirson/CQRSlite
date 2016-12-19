@@ -1,5 +1,6 @@
 ﻿using System;
 using CQRSlite.Domain;
+using CQRSlite.Events;
 
 namespace CQRSlite.Tests.Substitutes
 {
@@ -24,7 +25,10 @@ namespace CQRSlite.Tests.Substitutes
         {
             ApplyChange(new TestAggregateDidSomething());
         }
-
+        public override IEvent ConstructInitialCreateEvent(Guid aggregateId)
+        {
+            throw new NotImplementedException();
+        }
         public void DoSomethingElse()
         {
             ApplyChange(new TestAggregateDidSomeethingElse());

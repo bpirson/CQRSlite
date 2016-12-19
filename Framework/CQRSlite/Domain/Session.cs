@@ -28,7 +28,7 @@ namespace CQRSlite.Domain
                 throw new ConcurrencyException(aggregate.Id);
         }
 
-        public T Get<T>(Guid id, int? expectedVersion = null) where T : AggregateRoot
+        public async Task<T> GetAsync<T>(Guid id, int? expectedVersion = null) where T : AggregateRoot
         {
             if(IsTracked(id))
             {
@@ -38,7 +38,7 @@ namespace CQRSlite.Domain
                 return trackedAggregate;
             }
 
-            var aggregate = _repository.Get<T>(id);
+            var aggregate = await _repository.GetAsync<T>(id);
             if (expectedVersion != null && aggregate.Version != expectedVersion)
                 throw new ConcurrencyException(id);
             Add(aggregate);

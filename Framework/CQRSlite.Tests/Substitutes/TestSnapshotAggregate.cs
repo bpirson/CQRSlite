@@ -1,4 +1,5 @@
 ﻿using System;
+using CQRSlite.Events;
 using CQRSlite.Snapshots;
 
 namespace CQRSlite.Tests.Substitutes
@@ -23,6 +24,11 @@ namespace CQRSlite.Tests.Substitutes
         {
             Number = snapshot.Number;
             Restored = true;
+        }
+
+        public override IEvent ConstructInitialCreateEvent(Guid aggregateId)
+        {
+            throw new NotImplementedException();
         }
 
         private void Apply(TestAggregateDidSomething e)
