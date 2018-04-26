@@ -43,19 +43,31 @@ namespace CQRSlite.Domain
             aggregate.MarkChangesAsCommitted();
         }
 
-        public T Get<T>(Guid aggregateId) where T : AggregateRoot
+        public Task<T> GetAsync<T>(Guid aggregateId) where T : AggregateRoot
         {
-            return LoadAggregate<T>(aggregateId);
+            return LoadAggregateAsync<T>(aggregateId);
         }
 
-        private T LoadAggregate<T>(Guid id) where T : AggregateRoot
+        private async Task<T> LoadAggregateAsync<T>(Guid id) where T : AggregateRoot
         {
             var aggregate = AggregateFactory.CreateAggregate<T>();
 
             var events = _eventStore.Get(id, -1);
             if (!events.Any())
-                throw new AggregateNotFoundException(id);
-
+            {
+                try
+                {
+                    var @event = aggregate.ConstructInitialCreateEvent(id);
+                    @event.Version = 1;
+                    @event.TimeStamp = DateTimeOffset.UtcNow;
+                    await _eventStore.SaveAsync(@event);
+                    events = new[] { @event };
+                }
+                catch (System.Exception)
+                {
+                    throw new AggregateNotFoundException(id);
+                }
+            }
             aggregate.LoadFromHistory(events);
             return aggregate;
         }

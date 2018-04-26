@@ -21,7 +21,7 @@ namespace CQRSlite.Tests.Snapshots
 		    var snapshotRepository = new SnapshotRepository(snapshotStore, snapshotStrategy, new Repository(eventStore, eventPublisher), eventStore);
             var session = new Session(snapshotRepository);
 
-            _aggregate = session.Get<TestSnapshotAggregate>(Guid.NewGuid());
+            _aggregate = session.GetAsync<TestSnapshotAggregate>(Guid.NewGuid()).Result;
         }
 
         [Test]
