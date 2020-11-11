@@ -1,32 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CQRSlite.Commands;
+﻿using CQRSlite.Commands;
 using CQRSlite.Domain.Exception;
 using CQRSlite.Events;
 using CQRSlite.Messages;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CQRSlite.Bus
 {
     public class InProcessBus : ICommandSender, IEventPublisher, IHandlerRegistrar
     {
-        private readonly Dictionary<Type, List<Func<IMessage, Task>>> _routes = new Dictionary<Type, List<Func<IMessage,Task>>>();
+        private readonly ConcurrentDictionary<Type, List<Func<IMessage, Task>>> _routes = new ConcurrentDictionary<Type, List<Func<IMessage, Task>>>();
 
         public void RegisterHandler<T>(Func<T, Task> handler) where T : IMessage
         {
             List<Func<IMessage, Task>> handlers;
-            if(!_routes.TryGetValue(typeof(T), out handlers))
+            if (!_routes.TryGetValue(typeof(T), out handlers))
             {
                 handlers = new List<Func<IMessage, Task>>();
-                _routes.Add(typeof(T), handlers);
+                _routes.TryAdd(typeof(T), handlers);
             }
             handlers.Add((x => handler((T)x)));
         }
 
         public async Task SendAsync<T>(T command) where T : ICommand
         {
-            List<Func<IMessage, Task>> handlers; 
+            List<Func<IMessage, Task>> handlers;
             if (_routes.TryGetValue(command.GetType(), out handlers))
             {
                 if (handlers.Count != 1)
@@ -68,7 +69,7 @@ namespace CQRSlite.Bus
                 }
                 catch (Exception e)
                 {
-                    exceptions.Add( new EventHandlerFailedException(@event, e));
+                    exceptions.Add(new EventHandlerFailedException(@event, e));
                 }
             }
             if (exceptions.Any())

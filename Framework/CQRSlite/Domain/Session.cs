@@ -1,36 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CQRSlite.Domain.Exception;
+using System;
+using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
-using CQRSlite.Domain.Exception;
 
 namespace CQRSlite.Domain
 {
     public class Session : ISession
     {
         private readonly IRepository _repository;
-        private readonly Dictionary<Guid, AggregateDescriptor> _trackedAggregates;
+        private readonly ConcurrentDictionary<Guid, AggregateDescriptor> _trackedAggregates;
 
         public Session(IRepository repository)
         {
-            if(repository == null)
+            if (repository == null)
                 throw new ArgumentNullException("repository");
 
             _repository = repository;
-            _trackedAggregates = new Dictionary<Guid, AggregateDescriptor>();
+            _trackedAggregates = new ConcurrentDictionary<Guid, AggregateDescriptor>();
         }
 
         public void Add<T>(T aggregate) where T : AggregateRoot
         {
             if (!IsTracked(aggregate.Id))
-                _trackedAggregates.Add(aggregate.Id,
-                                       new AggregateDescriptor {Aggregate = aggregate, Version = aggregate.Version});
+                _trackedAggregates.TryAdd(aggregate.Id,
+                                       new AggregateDescriptor { Aggregate = aggregate, Version = aggregate.Version });
             else if (_trackedAggregates[aggregate.Id].Aggregate != aggregate)
                 throw new ConcurrencyException(aggregate.Id);
         }
 
         public async Task<T> GetAsync<T>(Guid id, int? expectedVersion = null) where T : AggregateRoot
         {
-            if(IsTracked(id))
+            if (IsTracked(id))
             {
                 var trackedAggregate = (T)_trackedAggregates[id].Aggregate;
                 if (expectedVersion != null && trackedAggregate.Version != expectedVersion)
@@ -53,17 +54,24 @@ namespace CQRSlite.Domain
 
         public async Task CommitAsync()
         {
-            try
+            foreach (var descriptorKeyPair in _trackedAggregates.ToList())
             {
-                foreach (var descriptor in _trackedAggregates.Values)
+                var descriptor = descriptorKeyPair.Value;
+                try
                 {
                     await _repository.SaveAsync(descriptor.Aggregate, descriptor.Version);
                 }
+                finally
+                {
+                    RemoveTrack(descriptorKeyPair.Key);
+                }
             }
-            finally
-            {
-                _trackedAggregates.Clear();
-            }
+        }
+
+        private void RemoveTrack(Guid id)
+        {
+            AggregateDescriptor removeDescriptor;
+            _trackedAggregates.TryRemove(id, out removeDescriptor);
         }
 
         private class AggregateDescriptor
