@@ -54,24 +54,12 @@ namespace CQRSlite.Domain
 
         public async Task CommitAsync()
         {
-            foreach (var descriptorKeyPair in _trackedAggregates.ToList())
+            foreach (var aggregateIds in _trackedAggregates.Keys.ToList())
             {
-                var descriptor = descriptorKeyPair.Value;
-                try
-                {
+                AggregateDescriptor descriptor;
+                if (_trackedAggregates.TryRemove(aggregateIds, out descriptor))
                     await _repository.SaveAsync(descriptor.Aggregate, descriptor.Version);
-                }
-                finally
-                {
-                    RemoveTrack(descriptorKeyPair.Key);
-                }
             }
-        }
-
-        private void RemoveTrack(Guid id)
-        {
-            AggregateDescriptor removeDescriptor;
-            _trackedAggregates.TryRemove(id, out removeDescriptor);
         }
 
         private class AggregateDescriptor
