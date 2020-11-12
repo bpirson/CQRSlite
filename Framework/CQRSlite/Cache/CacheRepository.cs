@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.Caching;
+using System.Threading.Tasks;
 using CQRSlite.Domain;
 using CQRSlite.Events;
 
@@ -17,9 +18,9 @@ namespace CQRSlite.Cache
 
         public CacheRepository(IRepository repository, IEventStore eventStore)
         {
-            if(repository == null)
+            if (repository == null)
                 throw new ArgumentNullException("repository");
-            if(eventStore == null)
+            if (eventStore == null)
                 throw new ArgumentNullException("eventStore");
 
             _repository = repository;
@@ -36,36 +37,32 @@ namespace CQRSlite.Cache
             };
         }
 
-        public void Save<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
+        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
         {
             var idstring = aggregate.Id.ToString();
             try
             {
-                lock (_locks.GetOrAdd(idstring, _ => new object()))
-                {
-                    if (aggregate.Id != Guid.Empty && !IsTracked(aggregate.Id))
-                        _cache.Add(idstring, aggregate, _policyFactory.Invoke());
-                    _repository.Save(aggregate, expectedVersion);
-                }
+                _locks.GetOrAdd(idstring, _ => new object());
+                if (aggregate.Id != Guid.Empty && !IsTracked(aggregate.Id))
+                    _cache.Add(idstring, aggregate, _policyFactory.Invoke());
+                await _repository.SaveAsync(aggregate, expectedVersion);
             }
             catch (Exception)
             {
-                lock (_locks.GetOrAdd(idstring, _ => new object()))
-                {
-                    _cache.Remove(idstring);
-                }
+                _locks.GetOrAdd(idstring, _ => new object());
+                _cache.Remove(idstring);
                 throw;
             }
         }
 
-        public T Get<T>(Guid aggregateId) where T : AggregateRoot
+        public async Task<T> GetAsync<T>(Guid aggregateId) where T : AggregateRoot
         {
             var idstring = aggregateId.ToString();
             try
             {
+                T aggregate;
                 lock (_locks.GetOrAdd(idstring, _ => new object()))
                 {
-                    T aggregate;
                     if (IsTracked(aggregateId))
                     {
                         aggregate = (T)_cache.Get(idstring);
@@ -80,18 +77,15 @@ namespace CQRSlite.Cache
                             return aggregate;
                         }
                     }
-
-                    aggregate = _repository.Get<T>(aggregateId);
-                    _cache.Add(aggregateId.ToString(), aggregate, _policyFactory.Invoke());
-                    return aggregate;
                 }
+                aggregate = await _repository.GetAsync<T>(aggregateId);
+                _cache.Add(aggregateId.ToString(), aggregate, _policyFactory.Invoke());
+                return aggregate;
             }
             catch (Exception)
             {
-                lock (_locks.GetOrAdd(idstring, _ => new object()))
-                {
-                    _cache.Remove(idstring);
-                }
+                _locks.GetOrAdd(idstring, _ => new object());
+                _cache.Remove(idstring);
                 throw;
             }
         }

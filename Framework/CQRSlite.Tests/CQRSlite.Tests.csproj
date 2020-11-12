@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CQRSlite.Tests</RootNamespace>
     <AssemblyName>CQRSlite.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
@@ -48,12 +48,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bus\When_publishing_events.cs" />
-    <Compile Include="Cache\When_saving_fails.cs" />
-    <Compile Include="Cache\When_saving_two_aggregates_in_parallel.cs" />
-    <Compile Include="Cache\When_getting_aggregate.cs" />
-    <Compile Include="Cache\When_getting_wrong_events_from_event_store.cs" />
-    <Compile Include="Cache\When_saving_aggregate.cs" />
-    <Compile Include="Cache\When_saving_same_aggregate_in_parallel.cs" />
     <Compile Include="Domain\When_getting_events_out_of_order.cs" />
     <Compile Include="Domain\When_adding_aggregates_to_repository.cs" />
     <Compile Include="Domain\When_getting_aggregate_without_contructor.cs" />

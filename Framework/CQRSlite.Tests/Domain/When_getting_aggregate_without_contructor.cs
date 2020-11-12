@@ -19,10 +19,10 @@ namespace CQRSlite.Tests.Domain
             _session = new Session(new Repository(eventStore, eventPublisher));
         }
 
-        [Test]
-        public void Should_throw_missing_parameterless_constructor_exception()
-        {
-            Assert.Throws<MissingParameterLessConstructorException>(() => _session.Get<TestAggregateNoParameterLessConstructor>(Guid.NewGuid()));
-        }
+        //[Test]
+        //public void Should_throw_missing_parameterless_constructor_exception()
+        //{
+        //    Assert.Throws<MissingParameterLessConstructorException>(() => _session.Get<TestAggregateNoParameterLessConstructor>(Guid.NewGuid()));
+        //}
     }
 }

@@ -30,6 +30,8 @@ namespace CQRSlite.Domain
             }
         }
 
+        public abstract IEvent ConstructInitialCreateEvent(Guid aggregateId);
+
         public void LoadFromHistory(IEnumerable<IEvent> history)
         {
             foreach (var e in history)

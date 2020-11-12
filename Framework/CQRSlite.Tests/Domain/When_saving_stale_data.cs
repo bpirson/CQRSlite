@@ -25,13 +25,13 @@ namespace CQRSlite.Tests.Domain
 
             _aggregate = new TestAggregate(Guid.NewGuid());
             _aggregate.DoSomething();
-            _rep.Save(_aggregate);
+            _rep.SaveAsync(_aggregate);
         }
 
         [Test]
         public void Should_throw_concurrency_exception_from_repository()
         {
-            Assert.Throws<ConcurrencyException>(() => _rep.Save(_aggregate, 0));
+            Assert.Throws<ConcurrencyException>(() => _rep.SaveAsync(_aggregate, 0));
         }
 
         [Test]
@@ -39,8 +39,8 @@ namespace CQRSlite.Tests.Domain
         {
             _session.Add(_aggregate);
             _aggregate.DoSomething();
-            _rep.Save(_aggregate);
-            Assert.Throws<ConcurrencyException>(() => _session.Commit());
+            _rep.SaveAsync(_aggregate);
+            Assert.Throws<ConcurrencyException>(() => _session.CommitAsync());
         }
     }
 }

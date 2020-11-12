@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CQRSlite.Events;
 
 namespace CQRSlite.Tests.Substitutes
@@ -21,8 +22,9 @@ namespace CQRSlite.Tests.Substitutes
                 };
         }
 
-        public void Save(IEvent eventDescriptor)
+        public Task SaveAsync(IEvent eventDescriptor)
         {
+            return Task.FromResult(0);
         }
     }
 }

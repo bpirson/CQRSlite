@@ -20,7 +20,7 @@ namespace CQRSlite.Tests.Snapshots
             var snapshotStrategy = new DefaultSnapshotStrategy();
 		    var repository = new SnapshotRepository(snapshotStore, snapshotStrategy, new Repository(eventStore, eventPublisher), eventStore);
             var session = new Session(repository);
-            _aggregate = session.Get<TestSnapshotAggregate>(Guid.NewGuid());
+            _aggregate = session.GetAsync<TestSnapshotAggregate>(Guid.NewGuid()).Result;
         }
 
 	    private class NullSnapshotStore : ISnapshotStore

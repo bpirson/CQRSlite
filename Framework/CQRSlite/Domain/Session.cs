@@ -1,43 +1,54 @@
-﻿using System;
+﻿using CQRSlite.Domain.Exception;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using CQRSlite.Domain.Exception;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CQRSlite.Domain
 {
     public class Session : ISession
     {
         private readonly IRepository _repository;
-        private readonly Dictionary<Guid, AggregateDescriptor> _trackedAggregates;
+        private readonly ConcurrentDictionary<Guid, AggregateDescriptor> _trackedAggregates;
+
+        private readonly object lockObject = new object();
 
         public Session(IRepository repository)
         {
-            if(repository == null)
+            if (repository == null)
                 throw new ArgumentNullException("repository");
 
             _repository = repository;
-            _trackedAggregates = new Dictionary<Guid, AggregateDescriptor>();
+            _trackedAggregates = new ConcurrentDictionary<Guid, AggregateDescriptor>();
         }
 
         public void Add<T>(T aggregate) where T : AggregateRoot
         {
-            if (!IsTracked(aggregate.Id))
-                _trackedAggregates.Add(aggregate.Id,
-                                       new AggregateDescriptor {Aggregate = aggregate, Version = aggregate.Version});
-            else if (_trackedAggregates[aggregate.Id].Aggregate != aggregate)
-                throw new ConcurrencyException(aggregate.Id);
+            lock (lockObject)
+            {
+                if (!IsTracked(aggregate.Id))
+                    _trackedAggregates.TryAdd(aggregate.Id,
+                        new AggregateDescriptor { Aggregate = aggregate, Version = aggregate.Version });
+                else if (_trackedAggregates[aggregate.Id].Aggregate != aggregate)
+                    throw new ConcurrencyException(aggregate.Id);
+            }
         }
 
-        public T Get<T>(Guid id, int? expectedVersion = null) where T : AggregateRoot
+        public async Task<T> GetAsync<T>(Guid id, int? expectedVersion = null) where T : AggregateRoot
         {
-            if(IsTracked(id))
+            lock (lockObject)
             {
-                var trackedAggregate = (T)_trackedAggregates[id].Aggregate;
-                if (expectedVersion != null && trackedAggregate.Version != expectedVersion)
-                    throw new ConcurrencyException(trackedAggregate.Id);
-                return trackedAggregate;
+                if (IsTracked(id))
+                {
+                    var trackedAggregate = (T)_trackedAggregates[id].Aggregate;
+                    if (expectedVersion != null && trackedAggregate.Version != expectedVersion)
+                        throw new ConcurrencyException(trackedAggregate.Id);
+                    return trackedAggregate;
+                }
             }
 
-            var aggregate = _repository.Get<T>(id);
+            var aggregate = await _repository.GetAsync<T>(id);
             if (expectedVersion != null && aggregate.Version != expectedVersion)
                 throw new ConcurrencyException(id);
             Add(aggregate);
@@ -50,13 +61,32 @@ namespace CQRSlite.Domain
             return _trackedAggregates.ContainsKey(id);
         }
 
-        public void Commit()
+        public async Task CommitAsync()
         {
-            foreach (var descriptor in _trackedAggregates.Values)
+            List<AggregateDescriptor> aggregateDescriptors;
+            lock (lockObject)
             {
-                _repository.Save(descriptor.Aggregate, descriptor.Version);
+                aggregateDescriptors = _trackedAggregates.Values.ToList();
+                _trackedAggregates.Clear();
             }
-            _trackedAggregates.Clear();
+
+            var exceptions = new List<System.Exception>();
+            foreach (var aggregateDescriptor in aggregateDescriptors)
+            {
+                try
+                {
+                    await _repository.SaveAsync(aggregateDescriptor.Aggregate, aggregateDescriptor.Version);
+                }
+                catch (System.Exception e)
+                {
+                    exceptions.Add(e);
+                }
+            }
+
+            if (exceptions.Any())
+            {
+                throw new AggregateException(exceptions);
+            }
         }
 
         private class AggregateDescriptor

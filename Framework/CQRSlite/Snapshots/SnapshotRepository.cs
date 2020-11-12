@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using CQRSlite.Domain;
 using CQRSlite.Domain.Factories;
 using CQRSlite.Events;
@@ -31,19 +32,19 @@ namespace CQRSlite.Snapshots
             _eventStore = eventStore;
         }
 
-        public void Save<T>(T aggregate, int? exectedVersion = null) where T : AggregateRoot
+        public async Task SaveAsync<T>(T aggregate, int? exectedVersion = null) where T : AggregateRoot
         {
             TryMakeSnapshot(aggregate);
-            _repository.Save(aggregate, exectedVersion);
+            await _repository.SaveAsync(aggregate, exectedVersion);
         }
 
-        public T Get<T>(Guid aggregateId) where T : AggregateRoot
+        public async Task<T> GetAsync<T>(Guid aggregateId) where T : AggregateRoot
         {
             var aggregate = AggregateFactory.CreateAggregate<T>();
             var snapshotVersion = TryRestoreAggregateFromSnapshot(aggregateId, aggregate);
             if(snapshotVersion == -1)
             {
-                return _repository.Get<T>(aggregateId);
+                return await _repository.GetAsync<T>(aggregateId);
             }
             var events = _eventStore.Get(aggregateId, snapshotVersion).Where(desc => desc.Version > snapshotVersion);
             aggregate.LoadFromHistory(events);

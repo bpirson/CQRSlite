@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using CQRSCode.ReadModel.Dtos;
 using CQRSCode.ReadModel.Events;
 using CQRSCode.ReadModel.Infrastructure;
@@ -12,16 +13,18 @@ namespace CQRSCode.ReadModel.Handlers
 											IEventHandler<ItemsRemovedFromInventory>,
 											IEventHandler<ItemsCheckedInToInventory>
     {
-        public void Handle(InventoryItemCreated message)
+        public Task HandleAsync(InventoryItemCreated message)
         {
             InMemoryDatabase.Details.Add(message.Id, new InventoryItemDetailsDto(message.Id, message.Name, 0, message.Version));
+            return Task.FromResult(0);
         }
 
-        public void Handle(InventoryItemRenamed message)
+        public Task HandleAsync(InventoryItemRenamed message)
         {
             InventoryItemDetailsDto d = GetDetailsItem(message.Id);
             d.Name = message.NewName;
             d.Version = message.Version;
+            return Task.FromResult(0);
         }
 
         private InventoryItemDetailsDto GetDetailsItem(Guid id)
@@ -34,23 +37,26 @@ namespace CQRSCode.ReadModel.Handlers
             return dto;
         }
 
-        public void Handle(ItemsRemovedFromInventory message)
+        public Task HandleAsync(ItemsRemovedFromInventory message)
         {
             var dto = GetDetailsItem(message.Id);
             dto.CurrentCount -= message.Count;
             dto.Version = message.Version;
+            return Task.FromResult(0);
         }
 
-        public void Handle(ItemsCheckedInToInventory message)
+        public Task HandleAsync(ItemsCheckedInToInventory message)
         {
             var dto = GetDetailsItem(message.Id);
             dto.CurrentCount += message.Count;
             dto.Version = message.Version;
+            return Task.FromResult(0);
         }
 
-        public void Handle(InventoryItemDeactivated message)
+        public Task HandleAsync(InventoryItemDeactivated message)
         {
             InMemoryDatabase.Details.Remove(message.Id);
+            return Task.FromResult(0);
         }
     }
 }

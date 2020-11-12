@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CQRSlite.Commands;
 using CQRSlite.Domain;
 using CQRSlite.Events;
@@ -37,10 +38,10 @@ namespace CQRSlite.Tests.Extensions.TestHelpers
 		    var repository = new SnapshotRepository(snapshotstorage, snapshotStrategy, new Repository(eventstorage, eventpublisher), eventstorage);
             Session = new Session(repository);
 
-            Aggregate = Session.Get<TAggregate>(Guid.Empty);
+            Aggregate = Session.GetAsync<TAggregate>(Guid.Empty).Result;
 
             var handler = BuildHandler();
-            handler.Handle(When());
+            handler.HandleAsync(When());
 
             Snapshot = snapshotstorage.Snapshot;
             PublishedEvents = eventpublisher.PublishedEvents;
@@ -73,9 +74,10 @@ namespace CQRSlite.Tests.Extensions.TestHelpers
             PublishedEvents = new List<IEvent>();
         }
 
-        public void Publish<T>(T @event) where T : IEvent
+        public Task PublishAsync<T>(T @event) where T : IEvent
         {
             PublishedEvents.Add(@event);
+            return Task.FromResult(0);
         }
 
         public IList<IEvent> PublishedEvents { get; set; }
@@ -89,9 +91,10 @@ namespace CQRSlite.Tests.Extensions.TestHelpers
 
         public IList<IEvent> Events { get; set; }
 
-        public void Save(IEvent @event)
+        public Task SaveAsync(IEvent @event)
         {
             Events.Add(@event);
+            return Task.FromResult(0);
         }
 
         public IEnumerable<IEvent> Get(Guid aggregateId, int fromVersion)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CQRSlite.Events;
 
 namespace CQRSlite.Tests.Substitutes
@@ -31,9 +32,10 @@ namespace CQRSlite.Tests.Substitutes
                 }.Where(x => x.Version > version);
         }
 
-        public void Save(IEvent @event)
+        public Task SaveAsync(IEvent @event)
         {
             SavedEvents.Add(@event);
+            return Task.FromResult(0);
         }
 
         private List<IEvent> SavedEvents { get; set; }

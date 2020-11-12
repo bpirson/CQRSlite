@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using CQRSlite.Domain.Exception;
 using CQRSlite.Domain.Factories;
 using CQRSlite.Events;
@@ -21,7 +22,7 @@ namespace CQRSlite.Domain
             _publisher = publisher;
         }
 
-        public void Save<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
+        public async Task SaveAsync<T>(T aggregate, int? expectedVersion = null) where T : AggregateRoot
         {
             if (expectedVersion != null && _eventStore.Get(aggregate.Id, expectedVersion.Value).Any())
                 throw new ConcurrencyException(aggregate.Id);
@@ -35,25 +36,38 @@ namespace CQRSlite.Domain
                 i++;
                 @event.Version = aggregate.Version + i;
                 @event.TimeStamp = DateTimeOffset.UtcNow;
-                _eventStore.Save(@event);
-                _publisher.Publish(@event);
+                // Note: Events should be saved and handled in sequence 
+                await _eventStore.SaveAsync(@event);
+                await _publisher.PublishAsync(@event);
             }
             aggregate.MarkChangesAsCommitted();
         }
 
-        public T Get<T>(Guid aggregateId) where T : AggregateRoot
+        public Task<T> GetAsync<T>(Guid aggregateId) where T : AggregateRoot
         {
-            return LoadAggregate<T>(aggregateId);
+            return LoadAggregateAsync<T>(aggregateId);
         }
 
-        private T LoadAggregate<T>(Guid id) where T : AggregateRoot
+        private async Task<T> LoadAggregateAsync<T>(Guid id) where T : AggregateRoot
         {
             var aggregate = AggregateFactory.CreateAggregate<T>();
 
             var events = _eventStore.Get(id, -1);
             if (!events.Any())
-                throw new AggregateNotFoundException(id);
-
+            {
+                try
+                {
+                    var @event = aggregate.ConstructInitialCreateEvent(id);
+                    @event.Version = 1;
+                    @event.TimeStamp = DateTimeOffset.UtcNow;
+                    await _eventStore.SaveAsync(@event);
+                    events = new[] { @event };
+                }
+                catch (System.Exception)
+                {
+                    throw new AggregateNotFoundException(id);
+                }
+            }
             aggregate.LoadFromHistory(events);
             return aggregate;
         }
